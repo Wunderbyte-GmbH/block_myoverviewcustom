@@ -24,5 +24,5 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2024100703;         // The current plugin version (Date: YYYYMMDDXX).
+$plugin->version   = 2025051400;         // The current plugin version (Date: YYYYMMDDXX).
 $plugin->component = 'block_myoverviewcustom'; // Full name of the plugin (used for diagnostics).
