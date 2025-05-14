@@ -192,32 +192,32 @@ class main implements renderable, templatable {
         if ($sort) {
             $this->sort = $sort;
         } else if ($CFG->courselistshortnames) {
-            $this->sort = BLOCK_MYOVERVIEW_SORTING_SHORTNAME;
+            $this->sort = BLOCK_MYOVERVIEWCUSTOMSORTING_SHORTNAME;
         } else {
-            $this->sort = BLOCK_MYOVERVIEW_SORTING_TITLE;
+            $this->sort = BLOCK_MYOVERVIEWCUSTOMSORTING_TITLE;
         }
         // In case sorting remembered is shortname and display extended course names not checked,
         // we should revert sorting to title.
-        if (!$CFG->courselistshortnames && $sort == BLOCK_MYOVERVIEW_SORTING_SHORTNAME) {
-            $this->sort = BLOCK_MYOVERVIEW_SORTING_TITLE;
+        if (!$CFG->courselistshortnames && $sort == BLOCK_MYOVERVIEWCUSTOMSORTING_SHORTNAME) {
+            $this->sort = BLOCK_MYOVERVIEWCUSTOMSORTING_TITLE;
         }
 
         // Check and remember the given view.
-        $this->view = $view ? $view : BLOCK_MYOVERVIEW_VIEW_CARD;
+        $this->view = $view ? $view : BLOCK_MYOVERVIEWCUSTOMVIEW_CARD;
 
         // Check and remember the given page size, `null` indicates no page size set
         // while a `0` indicates a paging size of `All`.
-        if (!is_null($paging) && $paging == BLOCK_MYOVERVIEW_PAGING_ALL) {
-            $this->paging = BLOCK_MYOVERVIEW_PAGING_ALL;
+        if (!is_null($paging) && $paging == BLOCK_MYOVERVIEWCUSTOMPAGING_ALL) {
+            $this->paging = BLOCK_MYOVERVIEWCUSTOMPAGING_ALL;
         } else {
-            $this->paging = $paging ? $paging : BLOCK_MYOVERVIEW_PAGING_12;
+            $this->paging = $paging ? $paging : BLOCK_MYOVERVIEWCUSTOMPAGING_12;
         }
 
         // Check and remember if the course categories should be shown or not.
         if (!$config->displaycategories) {
-            $this->displaycategories = BLOCK_MYOVERVIEW_DISPLAY_CATEGORIES_OFF;
+            $this->displaycategories = BLOCK_MYOVERVIEWCUSTOMDISPLAY_CATEGORIES_OFF;
         } else {
-            $this->displaycategories = BLOCK_MYOVERVIEW_DISPLAY_CATEGORIES_ON;
+            $this->displaycategories = BLOCK_MYOVERVIEWCUSTOMDISPLAY_CATEGORIES_ON;
         }
 
         // Get and remember the available layouts.
@@ -260,32 +260,32 @@ class main implements renderable, templatable {
      */
     private function get_fallback_grouping($config) {
         if ($config->displaygroupingall == true) {
-            return BLOCK_MYOVERVIEW_GROUPING_ALL;
+            return BLOCK_MYOVERVIEWCUSTOMGROUPING_ALL;
         }
         if ($config->displaygroupingallincludinghidden == true) {
-            return BLOCK_MYOVERVIEW_GROUPING_ALLINCLUDINGHIDDEN;
+            return BLOCK_MYOVERVIEWCUSTOMGROUPING_ALLINCLUDINGHIDDEN;
         }
         if ($config->displaygroupinginprogress == true) {
-            return BLOCK_MYOVERVIEW_GROUPING_INPROGRESS;
+            return BLOCK_MYOVERVIEWCUSTOMGROUPING_INPROGRESS;
         }
         if ($config->displaygroupingfuture == true) {
-            return BLOCK_MYOVERVIEW_GROUPING_FUTURE;
+            return BLOCK_MYOVERVIEWCUSTOMGROUPING_FUTURE;
         }
         if ($config->displaygroupingpast == true) {
-            return BLOCK_MYOVERVIEW_GROUPING_PAST;
+            return BLOCK_MYOVERVIEWCUSTOMGROUPING_PAST;
         }
         if ($config->displaygroupingfavourites == true) {
-            return BLOCK_MYOVERVIEW_GROUPING_FAVOURITES;
+            return BLOCK_MYOVERVIEWCUSTOMGROUPING_FAVOURITES;
         }
         if ($config->displaygroupinghidden == true) {
-            return BLOCK_MYOVERVIEW_GROUPING_HIDDEN;
+            return BLOCK_MYOVERVIEWCUSTOMGROUPING_HIDDEN;
         }
         if ($config->displaygroupingcustomfield == true) {
-            return BLOCK_MYOVERVIEW_GROUPING_CUSTOMFIELD;
+            return BLOCK_MYOVERVIEWCUSTOMGROUPING_CUSTOMFIELD;
         }
         // In this case, no grouping option is enabled and the grouping is not needed at all.
         // But it's better not to leave $this->grouping unset for any unexpected case.
-        return BLOCK_MYOVERVIEW_GROUPING_ALLINCLUDINGHIDDEN;
+        return BLOCK_MYOVERVIEWCUSTOMGROUPING_ALLINCLUDINGHIDDEN;
     }
 
     /**
@@ -300,7 +300,7 @@ class main implements renderable, templatable {
         if ($config = get_config('block_myoverviewcustom', 'layouts')) {
             $this->layouts = explode(',', $config);
         } else {
-            $this->layouts = [BLOCK_MYOVERVIEW_VIEW_CARD];
+            $this->layouts = [BLOCK_MYOVERVIEWCUSTOMVIEW_CARD];
         }
     }
 
@@ -399,7 +399,7 @@ class main implements renderable, templatable {
             return []; // The field shouldn't have been selectable in the global settings, but just skip it now.
         }
         $values = $field->course_grouping_format_values($values);
-        $customfieldactive = ($this->grouping === BLOCK_MYOVERVIEW_GROUPING_CUSTOMFIELD);
+        $customfieldactive = ($this->grouping === BLOCK_MYOVERVIEWCUSTOMGROUPING_CUSTOMFIELD);
         $ret = [];
         foreach ($values as $value => $name) {
             $ret[] = (object)[
@@ -432,7 +432,7 @@ class main implements renderable, templatable {
 
         $customfieldvalues = $this->get_customfield_values_for_export();
         $selectedcustomfield = '';
-        if ($this->grouping == BLOCK_MYOVERVIEW_GROUPING_CUSTOMFIELD) {
+        if ($this->grouping == BLOCK_MYOVERVIEWCUSTOMGROUPING_CUSTOMFIELD) {
             foreach ($customfieldvalues as $field) {
                 if ($field->value == $this->customfieldvalue) {
                     $selectedcustomfield = $field->name;
@@ -443,7 +443,7 @@ class main implements renderable, templatable {
             // been changed in the settings) find a suitable fallback.
             if (!$selectedcustomfield) {
                 $this->grouping = $this->get_fallback_grouping(get_config('block_myoverviewcustom'));
-                if ($this->grouping == BLOCK_MYOVERVIEW_GROUPING_CUSTOMFIELD) {
+                if ($this->grouping == BLOCK_MYOVERVIEWCUSTOMGROUPING_CUSTOMFIELD) {
                     // If the fallback grouping is still customfield, then select the first field.
                     $firstfield = reset($customfieldvalues);
                     if ($firstfield) {
@@ -456,10 +456,10 @@ class main implements renderable, templatable {
         $preferences = $this->get_preferences_as_booleans();
         $availablelayouts = $this->get_formatted_available_layouts_for_export();
         $sort = '';
-        if ($this->sort == BLOCK_MYOVERVIEW_SORTING_SHORTNAME) {
+        if ($this->sort == BLOCK_MYOVERVIEWCUSTOMSORTING_SHORTNAME) {
             $sort = 'shortname';
         } else {
-            $sort = $this->sort == BLOCK_MYOVERVIEW_SORTING_TITLE ? 'fullname' : 'ul.timeaccess desc';
+            $sort = $this->sort == BLOCK_MYOVERVIEWCUSTOMSORTING_TITLE ? 'fullname' : 'ul.timeaccess desc';
         }
 
         $defaultvariables = [

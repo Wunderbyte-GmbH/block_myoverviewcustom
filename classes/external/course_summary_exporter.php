@@ -86,7 +86,7 @@ class course_summary_exporter extends \core\external\exporter {
             'progress' => $progress,
             'hasprogress' => $hasprogress,
             'isfavourite' => $this->related['isfavourite'],
-            'hidden' => boolval(get_user_preferences('block_myoverview_hidden_course_' . $this->data->id, 0)),
+            'hidden' => boolval(get_user_preferences('BLOCK_MYOVERVIEWCUSTOMhidden_course_' . $this->data->id, 0)),
             'showshortname' => $CFG->courselistshortnames ? true : false,
             'coursecategory' => $coursecategory->name,
             'customfieldvalue' => $cvalue,
@@ -132,11 +132,6 @@ class course_summary_exporter extends \core\external\exporter {
             'showcompletionconditions' => [
                 'type' => PARAM_BOOL,
                 'null' => NULL_ALLOWED,
-            ],
-            'pdfexportfont' => [
-                'type' => PARAM_TEXT,
-                'null' => NULL_ALLOWED,
-                'default' => null,
             ],
         ];
     }
