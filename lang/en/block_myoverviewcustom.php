@@ -96,3 +96,4 @@ $string['zero_nocourses_title'] = 'Create your first course';
 $string['zero_request_intro'] = 'Need help getting started? Check out the <a href="{$a->dochref}" title="{$a->doctitle}" target="{$a->doctarget}">Moodle documentation</a> or take your first steps with our <a href="{$a->quickhref}" title="{$a->quicktitle}" target="{$a->quicktarget}">Quickstart guide</a>.';
 $string['zero_request_title'] = 'Request your first course';
 $string['backtocategories'] = 'Back to categories';
+$string['uncategorized'] = 'Uncategorized';

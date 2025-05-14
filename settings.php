@@ -74,34 +74,6 @@ if ($ADMIN->fulltree) {
         1
     ));
 
-    $settings->add(new admin_setting_configcheckbox(
-        'block_myoverviewcustom/displaygroupinginprogress',
-        get_string('inprogress', 'block_myoverviewcustom'),
-        '',
-        1
-    ));
-
-    $settings->add(new admin_setting_configcheckbox(
-        'block_myoverviewcustom/displaygroupingpast',
-        get_string('past', 'block_myoverviewcustom'),
-        '',
-        1
-    ));
-
-    $settings->add(new admin_setting_configcheckbox(
-        'block_myoverviewcustom/displaygroupingfuture',
-        get_string('future', 'block_myoverviewcustom'),
-        '',
-        1
-    ));
-
-    $settings->add(new admin_setting_configcheckbox(
-        'block_myoverviewcustom/displaygroupingcustomfield',
-        get_string('customfield', 'block_myoverviewcustom'),
-        '',
-        0
-    ));
-
     $choices = \core_customfield\api::get_fields_supporting_course_grouping();
     if ($choices) {
         $choices  = ['' => get_string('choosedots')] + $choices;
@@ -119,7 +91,6 @@ if ($ADMIN->fulltree) {
             get_string('customfiltergrouping_nofields', 'block_myoverviewcustom')
         ));
     }
-    $settings->hide_if('block_myoverviewcustom/customfiltergrouping', 'block_myoverviewcustom/displaygroupingcustomfield');
 
     $settings->add(new admin_setting_configcheckbox(
         'block_myoverviewcustom/displaygroupingfavourites',

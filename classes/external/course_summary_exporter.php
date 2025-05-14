@@ -67,14 +67,18 @@ class course_summary_exporter extends \core\external\exporter {
         $progress = floor($progress ?? 0);
         $coursecategory = \core_course_category::get($this->data->category, MUST_EXIST, true);
 
-        $handler = course_handler::create();
-        $datas = $handler->get_instance_data($this->data->id);
-        foreach ($datas as $data) {
-            if ($data->get_field()->get('shortname') === 'kategorie') {
-                $cvalue = $data->get_value();
+        $cfname = get_config('block_myoverviewcustom', 'customfiltergrouping');
+
+        $cvalue = '';
+        if ($cfname) {
+            $handler = course_handler::create();
+            $datas = $handler->get_instance_data($this->data->id);
+            foreach ($datas as $data) {
+                if ($data->get_field()->get('shortname') === $cfname) {
+                    $cvalue = $data->get_value();
+                }
             }
         }
-
         return [
             'fullnamedisplay' => get_course_display_name_for_list($this->data),
             'viewurl' => (new moodle_url('/course/view.php', ['id' => $this->data->id]))->out(false),

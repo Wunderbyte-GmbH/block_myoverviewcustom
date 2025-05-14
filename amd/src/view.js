@@ -33,6 +33,7 @@ import * as PagedContentEvents from 'core/paged_content_events';
 import * as Aria from 'core/aria';
 import {debounce} from 'core/utils';
 import {setUserPreference} from 'core_user/repository';
+import * as Str from 'core/str';
 
 const TEMPLATES = {
     COURSES_CATEGORIES: 'block_myoverviewcustom/view-categories',
@@ -493,7 +494,6 @@ const renderCourses2 = (root, coursesData) => {
     if (!coursesData) {
         return noCoursesRender(root);
     } else {
-        console.log(coursesData);
         // Sometimes we get weird objects coming after a failed search, cast to ensure typing functions.
         if (Array.isArray(coursesData.courses) === false) {
             coursesData.courses = Object.values(coursesData.courses);
@@ -504,7 +504,7 @@ const renderCourses2 = (root, coursesData) => {
             return course;
         });
         const groupedCourses = Object.entries(coursesData.courses.reduce((acc, course) => {
-            const category = course.customfieldvalue || 'Uncategorized';
+            const category = course.customfieldvalue || Str.get_strings('uncategorized', 'block_myoverviewcustom');
             if (!acc[category]) {
                 acc[category] = [];
             }
@@ -514,12 +514,11 @@ const renderCourses2 = (root, coursesData) => {
             category,
             courses
         })).sort((a, b) => a.category.localeCompare(b.category, undefined, { sensitivity: 'base' }));
-        
+
         const allcategories = Array.from(new Set(
-            coursesData.courses.map(course => course.customfieldvalue || 'Uncategorized')
+            coursesData.courses.map(course => course.customfieldvalue || Str.get_strings('uncategorized', 'block_myoverviewcustom'))
         )).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
 
-        
         if (Object.keys(groupedCourses).length) {
             return Templates.render(currentTemplate, {
                 groupedCourses,
@@ -867,26 +866,34 @@ const registerEventListeners = (root, page) => {
  * @param {object} coursesData The courses data object.
  * @return {Promise}
  */
-const renderCategoriesOnly = (root, coursesData) => {
+const renderCategoriesOnly = async (root, coursesData) => {
     if (!Array.isArray(coursesData.courses)) {
         coursesData.courses = Object.values(coursesData.courses);
     }
+
     const container = root.find('[data-region="courseview"]');
 
-    const allCategories = Array.from(new Set(
-        coursesData.courses.map(course => course.customfieldvalue || 'Uncategorized')
-    )).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+    try {
+        const uncategorizedStr = await Str.get_string('uncategorized', 'block_myoverviewcustom');
 
-    return Templates.render(TEMPLATES.COURSES_CATEGORIES, {
-        categories: allCategories
-    }).then(html => {
+        const allCategories = Array.from(new Set(
+            coursesData.courses.map(course => course.customfieldvalue || uncategorizedStr)
+        )).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+
+        const html = await Templates.render(TEMPLATES.COURSES_CATEGORIES, {
+            categories: allCategories
+        });
+
         container.html(html);
 
         root.find('.category-link').on('click', function () {
             const selectedCategory = $(this).data('category');
             renderCoursesByCategory(root, coursesData, selectedCategory);
         });
-    });
+
+    } catch (error) {
+        Notification.exception(error);
+    }
 };
 
 /**
@@ -897,33 +904,37 @@ const renderCategoriesOnly = (root, coursesData) => {
  * @param {string} selectedCategory The selected category.
  * @return {Promise}
  */
-const renderCoursesByCategory = (root, coursesData, selectedCategory) => {
+const renderCoursesByCategory = async (root, coursesData, selectedCategory) => {
     const filters = getFilterValues(root);
     const container = root.find('[data-region="courseview"]');
 
     const template = TEMPLATES.COURSES_CARDS;
 
-    const filteredCourses = coursesData.courses
-        .filter(course => (course.customfieldvalue || 'Uncategorized') === selectedCategory)
-        .map(course => {
-            course.showcoursecategory = filters.displaycategories === 'on';
-            return course;
+    try {
+        const uncategorizedStr = await Str.get_string('uncategorized', 'block_myoverviewcustom');
+
+        const filteredCourses = coursesData.courses
+            .filter(course => (course.customfieldvalue || uncategorizedStr) === selectedCategory)
+            .map(course => {
+                course.showcoursecategory = filters.displaycategories === 'on';
+                return course;
+            });
+
+        const html = await Templates.render(template, {
+            groupedCourses: [{ category: selectedCategory, courses: filteredCourses }],
+            allcategories: [selectedCategory],
+            backToCategories: true
         });
 
-    return Templates.render(template, {
-        groupedCourses: [{ category: selectedCategory, courses: filteredCourses }],
-        allcategories: [selectedCategory],
-        backToCategories: true
-    }).then(html => {
         container.html(html);
         container.find('.back-to-categories').on('click', () => {
             renderCategoriesOnly(root, coursesData);
         });
         attachSearchListeners(root);
-    });
-
+    } catch (error) {
+        Notification.exception(error);
+    }
 };
-
 
 /**
  * Reset the search icon and trigger the init for the block.
