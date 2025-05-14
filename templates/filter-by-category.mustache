@@ -1,0 +1,19 @@
+<div class="dropdown mb-3">
+    <button id="categoryDropdown" type="button"
+            class="btn btn-outline-secondary dropdown-toggle"
+            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+            aria-label="Category filter drop-down menu">
+        <span data-active-item-text>{{#str}}filterbycategory , block_myoverviewcustom{{/str}}</span>
+    </button>
+
+    <div class="dropdown-menu p-3" aria-labelledby="categoryDropdown">
+        {{#allcategories}}
+            <div class="form-check">
+                <input class="form-check-input category-filter" type="checkbox" value="{{.}}" id="cat-{{.}}">
+                <label class="form-check-label" for="cat-{{.}}">
+                    {{.}}
+                </label>
+            </div>
+        {{/allcategories}}
+    </div>
+</div>

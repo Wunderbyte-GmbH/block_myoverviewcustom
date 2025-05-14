@@ -1,0 +1,17 @@
+<div class="category-group mb-4">
+    <div class="card-grid mx-0 row row-cols-1 row-cols-sm-2 row-cols-md-3" data-region="card-deck" role="list">
+        {{#categories}}
+        <div class="col d-flex px-0 mb-2">
+            <div class="card course-card mx-1 category-link" role="listitem"
+                 data-category="{{.}}" style="cursor: pointer;">
+                <div class="card-body pr-1 d-flex flex-column justify-content-center text-center">
+                    <div class="mb-2">
+                        <i class="icon fa fa-folder fa-2x text-muted" aria-hidden="true"></i>
+                    </div>
+                    <strong class="text-truncate">{{.}}</strong>
+                </div>
+            </div>
+        </div>
+        {{/categories}}
+    </div>
+</div>
