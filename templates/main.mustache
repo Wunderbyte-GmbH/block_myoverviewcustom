@@ -27,15 +27,8 @@
     <hr class="mt-0"/>
 
 
-    <div role="search" data-region="filter" class="d-flex align-items-center my-2" aria-label="{{#str}} aria:controls, block_myoverview {{/str}}">
+    <div role="search" data-region="filter" class="d-flex align-items-center my-2 d-none" aria-label="{{#str}} aria:controls, block_myoverview {{/str}}">
         <div class="row no-gutters">
-
-            {{> block_myoverview/nav-search-widget }}
-
-
-            {{#displaydropdown}}
-                {{> block_myoverview/nav-display-selector }}
-            {{/displaydropdown}}
         </div>
     </div>
 

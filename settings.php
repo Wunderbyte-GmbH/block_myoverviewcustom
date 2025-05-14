@@ -43,9 +43,7 @@ if ($ADMIN->fulltree) {
     ));
 
     // Enable / Disable available layouts.
-    $choices = [BLOCK_MYOVERVIEW_VIEW_CARD => get_string('card', 'block_myoverviewcustom'),
-            BLOCK_MYOVERVIEW_VIEW_LIST => get_string('list', 'block_myoverviewcustom'),
-            BLOCK_MYOVERVIEW_VIEW_SUMMARY => get_string('summary', 'block_myoverviewcustom')];
+    $choices = [BLOCK_MYOVERVIEW_VIEW_CARD => get_string('card', 'block_myoverviewcustom')];
     $settings->add(new admin_setting_configmulticheckbox(
         'block_myoverviewcustom/layouts',
         get_string('layouts', 'block_myoverviewcustom'),

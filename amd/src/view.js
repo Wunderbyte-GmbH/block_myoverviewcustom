@@ -37,8 +37,6 @@ import {setUserPreference} from 'core_user/repository';
 const TEMPLATES = {
     COURSES_CATEGORIES: 'block_myoverviewcustom/view-categories',
     COURSES_CARDS: 'block_myoverviewcustom/view-cards',
-    COURSES_LIST: 'block_myoverviewcustom/view-list',
-    COURSES_SUMMARY: 'block_myoverviewcustom/view-summary',
     NOCOURSES: 'core_course/no-courses'
 };
 
@@ -490,13 +488,7 @@ const renderCourses2 = (root, coursesData) => {
     const filters = getFilterValues(root);
 
     let currentTemplate = '';
-    if (filters.display === 'card') {
-        currentTemplate = TEMPLATES.COURSES_CARDS;
-    } else if (filters.display === 'list') {
-        currentTemplate = TEMPLATES.COURSES_LIST;
-    } else {
-        currentTemplate = TEMPLATES.COURSES_SUMMARY;
-    }
+    currentTemplate = TEMPLATES.COURSES_CARDS;
 
     if (!coursesData) {
         return noCoursesRender(root);
@@ -702,6 +694,7 @@ const searchFunctionalityCurry = () => {
 
 
 const attachSearchListeners = (root) => {
+    return;
     const input = document.querySelector(SELECTORS.region.searchInput);
     const clearIcon = document.querySelector(SELECTORS.region.clearIcon);
 
@@ -847,24 +840,24 @@ const registerEventListeners = (root, page) => {
         });
     });
 
-    // Searching functionality event handlers.
-    const input = page.querySelector(SELECTORS.region.searchInput);
-    const clearIcon = page.querySelector(SELECTORS.region.clearIcon);
+    // // Searching functionality event handlers.
+    // const input = page.querySelector(SELECTORS.region.searchInput);
+    // const clearIcon = page.querySelector(SELECTORS.region.clearIcon);
 
-    clearIcon.addEventListener('click', () => {
-        input.value = '';
-        input.focus();
-        clearSearch(clearIcon, root);
-    });
+    // clearIcon.addEventListener('click', () => {
+    //     input.value = '';
+    //     input.focus();
+    //     clearSearch(clearIcon, root);
+    // });
 
-    input.addEventListener('input', debounce(() => {
-        if (input.value === '') {
-            clearSearch(clearIcon, root);
-        } else {
-            activeSearch(clearIcon);
-            initializePagedContent(root, searchFunctionalityCurry(), input.value.trim());
-        }
-    }, 1000));
+    // input.addEventListener('input', debounce(() => {
+    //     if (input.value === '') {
+    //         clearSearch(clearIcon, root);
+    //     } else {
+    //         activeSearch(clearIcon);
+    //         initializePagedContent(root, searchFunctionalityCurry(), input.value.trim());
+    //     }
+    // }, 1000));
 };
 
 /**
@@ -908,11 +901,7 @@ const renderCoursesByCategory = (root, coursesData, selectedCategory) => {
     const filters = getFilterValues(root);
     const container = root.find('[data-region="courseview"]');
 
-    const template = filters.display === 'list'
-        ? TEMPLATES.COURSES_LIST
-        : filters.display === 'summary'
-            ? TEMPLATES.COURSES_SUMMARY
-            : TEMPLATES.COURSES_CARDS;
+    const template = TEMPLATES.COURSES_CARDS;
 
     const filteredCourses = coursesData.courses
         .filter(course => (course.customfieldvalue || 'Uncategorized') === selectedCategory)
@@ -927,11 +916,6 @@ const renderCoursesByCategory = (root, coursesData, selectedCategory) => {
         backToCategories: true
     }).then(html => {
         container.html(html);
-        container.prepend(`
-            <button class="btn btn-secondary back-to-categories mb-3" type="button">
-                ← Back to categories
-            </button>
-        `);
         container.find('.back-to-categories').on('click', () => {
             renderCategoriesOnly(root, coursesData);
         });

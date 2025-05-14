@@ -36,11 +36,9 @@
     }
 }}
 
-<div role="search" data-region="filter" class="d-flex align-items-center my-2" aria-label="{{#str}} aria:controls, block_myoverviewcustom {{/str}}">
-    <div class="row g-0">
-        {{> block_myoverviewcustom/nav-search-widget }}
-    </div>
-</div>
+{{#backToCategories}}
+    {{> block_myoverviewcustom/back-to-categories }}
+{{/backToCategories}}
 {{#groupedCourses}}
     <div class="category-group mb-4">
         <h4 class="category-heading">{{category}}</h4> {{! Display category name }} {{! this is the array of courses in the current category }}
