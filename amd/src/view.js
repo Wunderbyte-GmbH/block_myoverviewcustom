@@ -51,7 +51,7 @@ const GROUPINGS = {
     GROUPING_HIDDEN: 'hidden'
 };
 
-const NUMCOURSES_PERPAGE = [12, 24, 48, 96, 0];
+const NUMCOURSES_PERPAGE = [0];
 
 let loadedPages = [];
 
@@ -576,7 +576,7 @@ const itemsPerPageFunc = (pagingLimit, root) => {
     // Filter out all pagination options which are too large for the amount of courses user is enrolled in.
     const totalCourseCount = parseInt(root.find(SELECTORS.courseView.region).attr('data-totalcoursecount'), 10);
     return itemsPerPage.filter(pagingOption => {
-        if (pagingOption.value === 0 && totalCourseCount > 100) {
+        if (pagingOption.value === 0 && totalCourseCount > 300) {
             // To minimise performance issues, do not show the "All" option if the user is enrolled in more than 100 courses.
             return false;
         }

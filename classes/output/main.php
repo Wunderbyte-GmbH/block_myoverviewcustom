@@ -227,12 +227,12 @@ class main implements renderable, templatable {
         // Check and remember if the particular grouping options should be shown or not.
         $this->displaygroupingallincludinghidden = $config->displaygroupingallincludinghidden;
         $this->displaygroupingall = $config->displaygroupingall;
-        $this->displaygroupinginprogress = $config->displaygroupinginprogress;
-        $this->displaygroupingfuture = $config->displaygroupingfuture;
-        $this->displaygroupingpast = $config->displaygroupingpast;
+        $this->displaygroupinginprogress = false;
+        $this->displaygroupingfuture = false;
+        $this->displaygroupingpast = false;
         $this->displaygroupingfavourites = $config->displaygroupingfavourites;
         $this->displaygroupinghidden = $config->displaygroupinghidden;
-        $this->displaygroupingcustomfield = ($config->displaygroupingcustomfield && $config->customfiltergrouping);
+        $this->displaygroupingcustomfield = (false && $config->customfiltergrouping);
         $this->customfiltergrouping = $config->customfiltergrouping;
 
         // Check and remember if the grouping selector should be shown at all or not.
