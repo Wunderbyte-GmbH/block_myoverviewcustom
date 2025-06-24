@@ -29,8 +29,7 @@ import * as ViewNav from 'block_myoverviewcustom/view_nav';
  * @param {object} root The root element for the overview block.
  */
 export const init = (root) => {
-    // Initialise the course navigation elements.
-    ViewNav.init(root);
     // Initialise the courses view modules.
     View.init(root);
+    ViewNav.init(root);
 };

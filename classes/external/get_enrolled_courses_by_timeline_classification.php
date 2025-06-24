@@ -111,7 +111,6 @@ class get_enrolled_courses_by_timeline_classification extends external_api {
     ) {
         global $CFG, $PAGE, $USER;
         require_once($CFG->dirroot . '/course/lib.php');
-
         $params = self::validate_parameters(
             self::execute_parameters(),
             [
@@ -129,10 +128,11 @@ class get_enrolled_courses_by_timeline_classification extends external_api {
         $limit = $params['limit'];
         $offset = $params['offset'];
         $sort = $params['sort'];
+
         $customfieldvalue = $params['customfieldvalue'];
         $searchvalue = clean_param($params['searchvalue'], PARAM_TEXT);
         $requiredfields = $params['requiredfields'];
-
+        $classification = COURSE_TIMELINE_ALLINCLUDINGHIDDEN;
         switch ($classification) {
             case COURSE_TIMELINE_ALLINCLUDINGHIDDEN:
                 break;

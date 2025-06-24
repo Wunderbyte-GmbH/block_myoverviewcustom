@@ -53,7 +53,6 @@ class block_myoverviewcustom extends block_base {
         $view = get_user_preferences('block_myoverviewcustom_user_view_preference');
         $paging = get_user_preferences('block_myoverviewcustom_user_paging_preference');
         $customfieldvalue = get_user_preferences('block_myoverviewcustom_user_grouping_customfieldvalue_preference');
-
         $renderable = new \block_myoverviewcustom\output\main($group, $sort, $view, $paging, $customfieldvalue);
         $renderer = $this->page->get_renderer('block_myoverviewcustom');
 

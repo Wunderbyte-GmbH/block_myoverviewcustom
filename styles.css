@@ -12,3 +12,11 @@
 .page-mycourses .block_myoverviewcustom .block-controls {
     display: none;
 }
+
+.block_myoverviewcustom  [data-region="paged-content-container"] {
+    display: none;
+}
+
+.block_myoverviewcustom [data-category="-1"] .simplesearchform {
+    display: none;
+}

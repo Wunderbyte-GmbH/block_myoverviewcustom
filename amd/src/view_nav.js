@@ -45,7 +45,6 @@ const updatePreferences = (filter, value) => {
     } else {
         type = 'block_myoverviewcustom_user_grouping_preference';
     }
-
     return setUserPreference(type, value)
         .catch(Notification.exception);
 };
@@ -77,26 +76,21 @@ const registerSelector = root => {
 
             root.find(SELECTORS.courseView.region).attr('data-' + filter, option.attr('data-value'));
             updatePreferences(filter, pref);
-
             if (customfieldvalue) {
                 root.find(SELECTORS.courseView.region).attr('data-customfieldvalue', customfieldvalue);
                 updatePreferences('customfieldvalue', customfieldvalue);
             }
-
-            // Reset the views.
+            // Reset the views
+            View.init(root);
 
             // Check if the user is currently in a searching state, if so we'll reset it.
             const page = document.querySelector(SELECTORS.region.selectBlock);
             const input = page.querySelector(SELECTORS.region.searchInput);
             if (input.value !== '') {
-                const clearIcon = page.querySelector(SELECTORS.region.clearIcon);
                 input.value = '';
-                // Triggers the init so wont need to call it again.
-                View.clearSearch(clearIcon, root);
-            } else {
                 View.init(root);
+                        // Triggers the init so wont need to call it again.
             }
-
             data.originalEvent.preventDefault();
         }
     );
@@ -116,7 +110,7 @@ const registerSelector = root => {
 
             root.find(SELECTORS.courseView.region).attr('data-display', option.attr('data-value'));
             updatePreferences(filter, pref);
-            View.reset(root);
+            View.init(root);
             data.originalEvent.preventDefault();
         }
     );

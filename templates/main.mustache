@@ -23,16 +23,22 @@
     {}
 }}
 
-<div id="block-myoverviewcustom-{{uniqid}}" class="block-myoverviewcustom block-cards" data-region="myoverviewcustom" role="navigation">
+<div id="block-myoverviewcustom-{{uniqid}}" class="block-myoverviewcustom block-cards" data-region="myoverviewcustom" role="navigation" data-category="-1">
     <hr class="mt-0"/>
+    <div class="container-fluid p-0">
+        <div role="search" data-region="filter" class="d-flex align-items-center my-2" aria-label="{{#str}} aria:controls, block_myoverview {{/str}}">
 
+        <div class="row g-0">
 
-    <div role="search" data-region="filter" class="d-flex align-items-center my-2 d-none" aria-label="{{#str}} aria:controls, block_myoverview {{/str}}">
-        <div class="row no-gutters">
+            {{> block_myoverview/nav-search-widget }}
+
+            {{> block_myoverview/nav-sort-selector }}
+
+            {{#displaydropdown}}
+                {{> block_myoverview/nav-display-selector }}
+            {{/displaydropdown}}
         </div>
     </div>
-
-    <div class="container-fluid p-0">
         {{> block_myoverviewcustom/courses-view }}
     </div>
 </div>

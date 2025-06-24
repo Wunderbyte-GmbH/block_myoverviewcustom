@@ -36,12 +36,14 @@
     }
 }}
 
-{{#backToCategories}}
-    {{> block_myoverviewcustom/back-to-categories }}
-{{/backToCategories}}
+
 {{#groupedCourses}}
+        {{#backToCategories}}
+            {{> block_myoverviewcustom/back-to-categories }}
+        {{/backToCategories}}
     <div class="category-group mb-4">
         <h4 class="category-heading">{{category}}</h4> {{! Display category name }} {{! this is the array of courses in the current category }}
+            <div class="course-card-container">
             {{< core_course/coursecards }}
                 {{$menu}}
                     <div class="card-footer menu border-0 bg-white ms-auto">
@@ -83,5 +85,6 @@
                     {{/showcoursecategory}}
                 {{/divider}}
             {{/ core_course/coursecards }}
+            </div>
     </div>
 {{/groupedCourses}}

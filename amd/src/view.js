@@ -16,6 +16,7 @@
 /**
  * Manage the courses view for the overview block.
  *
+ * @module block_myoverviewcustom/view
  * @copyright  2018 Bas Brands <bas@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -100,6 +101,25 @@ const DEFAULT_PAGED_CONTENT_CONFIG = {
 };
 
 /**
+ * Intialise the courses list and cards views on page load.
+ *
+ * @param {object} root The root element for the courses view.
+ */
+export const init = root => {
+    root = $(root);
+    loadedPages = [];
+    lastPage = 0;
+    courseOffset = 0;
+    if (!root.attr('data-init')) {
+        registerEventListeners(root);
+        namespace = "block_myoverviewcustom_" + root.attr('id') + "_" + Math.random();
+        root.attr('data-init', true);
+    }
+
+    initializePagedContent(root, standardFunctionalityCurry());
+};
+
+/**
  * Get enrolled courses from backend.
  *
  * @param {object} filters The filters for this view.
@@ -107,6 +127,7 @@ const DEFAULT_PAGED_CONTENT_CONFIG = {
  * @return {promise} Resolved with an array of courses.
  */
 const getMyCourses = (filters, limit) => {
+
     const params = {
         offset: courseOffset,
         limit: limit,
@@ -115,6 +136,12 @@ const getMyCourses = (filters, limit) => {
         customfieldname: filters.customfieldname,
         customfieldvalue: filters.customfieldvalue,
     };
+    if (filters.display === 'summary') {
+        params.requiredfields = Repository.SUMMARY_REQUIRED_FIELDS;
+        summaryDisplayLoaded = true;
+    } else {
+        params.requiredfields = Repository.CARDLIST_REQUIRED_FIELDS;
+    }
     return Repository.getEnrolledCoursesWithCustomfields(params);
 };
 
@@ -476,58 +503,18 @@ const noCoursesRender = root => {
  *
  * @param {object} root The root element for the courses view.
  * @param {array} coursesData containing array of returned courses.
+ * @param {string|null} category The category to filter by, if any.
  * @return {promise} jQuery promise resolved after rendering is complete.
  */
-const renderCourses = (root, coursesData) => {
+const renderCourses = (root, coursesData, category = null) => {
     if (!coursesData || !coursesData.courses || !coursesData.courses.length) {
         return noCoursesRender(root);
     }
-    return renderCategoriesOnly(root, coursesData);
-};
-const renderCourses2 = (root, coursesData) => {
-
-    const filters = getFilterValues(root);
-
-    let currentTemplate = '';
-    currentTemplate = TEMPLATES.COURSES_CARDS;
-
-    if (!coursesData) {
-        return noCoursesRender(root);
-    } else {
-        // Sometimes we get weird objects coming after a failed search, cast to ensure typing functions.
-        if (Array.isArray(coursesData.courses) === false) {
-            coursesData.courses = Object.values(coursesData.courses);
-        }
-        // Whether the course category should be displayed in the course item.
-        coursesData.courses = coursesData.courses.map(course => {
-            course.showcoursecategory = filters.displaycategories === 'on';
-            return course;
-        });
-        const groupedCourses = Object.entries(coursesData.courses.reduce((acc, course) => {
-            const category = course.customfieldvalue || Str.get_strings('uncategorized', 'block_myoverviewcustom');
-            if (!acc[category]) {
-                acc[category] = [];
-            }
-            acc[category].push(course);
-            return acc;
-        }, {})).map(([category, courses]) => ({
-            category,
-            courses
-        })).sort((a, b) => a.category.localeCompare(b.category, undefined, { sensitivity: 'base' }));
-
-        const allcategories = Array.from(new Set(
-            coursesData.courses.map(course => course.customfieldvalue || Str.get_strings('uncategorized', 'block_myoverviewcustom'))
-        )).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
-
-        if (Object.keys(groupedCourses).length) {
-            return Templates.render(currentTemplate, {
-                groupedCourses,
-                'allcategories': allcategories,
-            });
-        } else {
-            return noCoursesRender(root);
-        }
+    category = category || root.attr('data-category');
+    if (category !== null && category !== '-1') {
+        return renderCoursesByCategory(root, coursesData, category);
     }
+    return renderCategoriesOnly(root, coursesData);
 };
 
 /**
@@ -665,7 +652,6 @@ const standardFunctionalityCurry = () => {
             pageBuilder(coursesData, currentPage, pageData, actions);
             return renderCourses(root, loadedPages[currentPage]);
         }).catch(Notification.exception);
-
         promises.push(pagePromise);
     };
 };
@@ -686,40 +672,8 @@ const searchFunctionalityCurry = () => {
             pageBuilder(coursesData, currentPage, pageData, actions);
             return renderCourses(root, loadedPages[currentPage]);
         }).catch(Notification.exception);
-
         promises.push(searchingPromise);
     };
-};
-
-
-const attachSearchListeners = (root) => {
-    return;
-    const input = document.querySelector(SELECTORS.region.searchInput);
-    const clearIcon = document.querySelector(SELECTORS.region.clearIcon);
-
-    if (!input || !clearIcon) {
-        return;
-    }
-    // Remove previous listeners before adding new ones
-    const newInput = input.cloneNode(true);
-    input.parentNode.replaceChild(newInput, input);
-
-    const newClearIcon = clearIcon.cloneNode(true);
-    clearIcon.parentNode.replaceChild(newClearIcon, clearIcon);
-    newClearIcon.addEventListener('click', () => {
-        newInput.value = '';
-        newInput.focus();
-        clearSearch(newClearIcon, root);
-    });
-
-    newInput.addEventListener('input', debounce(() => {
-        if (newInput.value === '') {
-            clearSearch(newClearIcon, root);
-        } else {
-            activeSearch(newClearIcon);
-            initializePagedContent(root, searchFunctionalityCurry(), newInput.value.trim());
-        }
-    }, 1000));
 };
 
 /**
@@ -788,9 +742,8 @@ const initializePagedContent = (root, promiseFunction, inputValue = null) => {
  * Listen to, and handle events for the myoverviewcustom block.
  *
  * @param {Object} root The myoverviewcustom block container element.
- * @param {HTMLElement} page The whole HTMLElement for our block.
  */
-const registerEventListeners = (root, page) => {
+const registerEventListeners = (root) => {
 
     CustomEvents.define(root, [
         CustomEvents.events.activate
@@ -838,25 +791,66 @@ const registerEventListeners = (root, page) => {
             $(this).toggle(visible);
         });
     });
+};
 
-    // // Searching functionality event handlers.
-    // const input = page.querySelector(SELECTORS.region.searchInput);
-    // const clearIcon = page.querySelector(SELECTORS.region.clearIcon);
+const renderCoursesByCategory = async (root, coursesData, selectedCategory) => {
+    const container = root.find('[data-region="courseview"]');
+    const template = TEMPLATES.COURSES_CARDS;
+    const filtercontainer = root.find('[data-region="filter"]');
+    try {
+        const uncategorizedStr = await Str.get_string('uncategorized', 'block_myoverviewcustom');
 
-    // clearIcon.addEventListener('click', () => {
-    //     input.value = '';
-    //     input.focus();
-    //     clearSearch(clearIcon, root);
-    // });
+        const renderFilteredCourses = (searchText) => {
+            const filters = getFilterValues(root);
+            const query = (searchText || '').toLowerCase();
+            let filteredCourses = coursesData.courses
+                .filter(course => {
+                    const courseCategory = course.customfieldvalue || uncategorizedStr;
+                    const matchesCategory = courseCategory === selectedCategory;
+                    const name = (course.fullname || '').toString();
+                    const matchesSearch = name.toLowerCase().includes(query);
+                    return matchesCategory && matchesSearch;
+                })
+                .map(course => {
+                    course.showcoursecategory = filters.displaycategories === 'on';
+                    return course;
+                });
 
-    // input.addEventListener('input', debounce(() => {
-    //     if (input.value === '') {
-    //         clearSearch(clearIcon, root);
-    //     } else {
-    //         activeSearch(clearIcon);
-    //         initializePagedContent(root, searchFunctionalityCurry(), input.value.trim());
-    //     }
-    // }, 1000));
+            Templates.render(template, {
+                groupedCourses: [{ category: selectedCategory, courses: filteredCourses }],
+                allcategories: [selectedCategory],
+                backToCategories: true
+            }).then(html => {
+                root.attr('data-category', selectedCategory);
+                container.html(html);
+                container.find('.back-to-categories').on('click', () => {
+                    renderCategoriesOnly(root, coursesData);
+                });
+            }).catch(Notification.exception);
+        };
+        // Initial render with all courses in this category
+        renderFilteredCourses('');
+        // Set up search listener
+        filtercontainer.find('[data-action="search"][data-region="input"]').on('input', debounce(function (e) {
+            const input = e.target;
+            const searchText = (input.value || '').trim();
+            renderFilteredCourses(searchText);
+        }, 300));
+
+
+        filtercontainer.find('[data-action="search"][data-region="input"]').on('input', debounce(function (e) {
+            const input = e.target;
+            const searchText = (input.value || '').trim();
+            renderFilteredCourses(searchText);
+        }, 300));
+
+
+        // Back button to categories
+
+
+    } catch (error) {
+        Notification.exception(error);
+    }
 };
 
 /**
@@ -872,7 +866,7 @@ const renderCategoriesOnly = async (root, coursesData) => {
     }
 
     const container = root.find('[data-region="courseview"]');
-
+    root.attr('data-category', '-1');
     try {
         const uncategorizedStr = await Str.get_string('uncategorized', 'block_myoverviewcustom');
 
@@ -894,87 +888,6 @@ const renderCategoriesOnly = async (root, coursesData) => {
     } catch (error) {
         Notification.exception(error);
     }
-};
-
-/**
- * Render courses belonging to a specific category.
- *
- * @param {object} root The root element.
- * @param {object} coursesData The courses data.
- * @param {string} selectedCategory The selected category.
- * @return {Promise}
- */
-const renderCoursesByCategory = async (root, coursesData, selectedCategory) => {
-    const filters = getFilterValues(root);
-    const container = root.find('[data-region="courseview"]');
-
-    const template = TEMPLATES.COURSES_CARDS;
-
-    try {
-        const uncategorizedStr = await Str.get_string('uncategorized', 'block_myoverviewcustom');
-
-        const filteredCourses = coursesData.courses
-            .filter(course => (course.customfieldvalue || uncategorizedStr) === selectedCategory)
-            .map(course => {
-                course.showcoursecategory = filters.displaycategories === 'on';
-                return course;
-            });
-
-        const html = await Templates.render(template, {
-            groupedCourses: [{ category: selectedCategory, courses: filteredCourses }],
-            allcategories: [selectedCategory],
-            backToCategories: true
-        });
-
-        container.html(html);
-        container.find('.back-to-categories').on('click', () => {
-            renderCategoriesOnly(root, coursesData);
-        });
-        attachSearchListeners(root);
-    } catch (error) {
-        Notification.exception(error);
-    }
-};
-
-/**
- * Reset the search icon and trigger the init for the block.
- *
- * @param {HTMLElement} clearIcon Our closing icon to manipulate.
- * @param {Object} root The myoverviewcustom block container element.
- */
-export const clearSearch = (clearIcon, root) => {
-    clearIcon.classList.add('d-none');
-    init(root);
-};
-
-/**
- * Change the searching icon to its' active state.
- *
- * @param {HTMLElement} clearIcon Our closing icon to manipulate.
- */
-const activeSearch = (clearIcon) => {
-    clearIcon.classList.remove('d-none');
-};
-
-/**
- * Intialise the courses list and cards views on page load.
- *
- * @param {object} root The root element for the courses view.
- */
-export const init = root => {
-    root = $(root);
-    loadedPages = [];
-    lastPage = 0;
-    courseOffset = 0;
-
-    if (!root.attr('data-init')) {
-        const page = document.querySelector(SELECTORS.region.selectBlock);
-        registerEventListeners(root, page);
-        namespace = "block_myoverviewcustom_" + root.attr('id') + "_" + Math.random();
-        root.attr('data-init', true);
-    }
-
-    initializePagedContent(root, standardFunctionalityCurry());
 };
 
 /**
