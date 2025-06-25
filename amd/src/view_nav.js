@@ -23,7 +23,10 @@
 import $ from 'jquery';
 import * as CustomEvents from 'core/custom_interaction_events';
 import Notification from 'core/notification';
-import {setUserPreference} from 'core_user/repository';
+// MOODLE 4.1
+import * as Repository from 'block_myoverview/repository';
+// MOODLE 4.5
+// import {setUserPreference} from 'core_user/repository';
 import * as View from 'block_myoverviewcustom/view';
 import SELECTORS from 'block_myoverviewcustom/selectors';
 
@@ -45,8 +48,14 @@ const updatePreferences = (filter, value) => {
     } else {
         type = 'block_myoverviewcustom_user_grouping_preference';
     }
-    return setUserPreference(type, value)
-        .catch(Notification.exception);
+    return Repository.updateUserPreferences({
+        preferences: [
+            {
+                type: type,
+                value: value
+            }
+        ]
+    });
 };
 
 /**

@@ -112,10 +112,11 @@ class course_summary_exporter extends \core\external\exporter {
                 'null' => NULL_ALLOWED,
                 'default' => null,
             ],
-            'summaryformat' => [
-                'type' => PARAM_INT,
-                'default' => FORMAT_MOODLE,
-            ],
+            // moodle 4.1
+            // 'summaryformat' => [
+            //     'type' => PARAM_INT,
+            //     'default' => FORMAT_MOODLE,
+            // ],
             'startdate' => [
                 'type' => PARAM_INT,
             ],
