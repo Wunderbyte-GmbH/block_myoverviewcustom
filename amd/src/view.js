@@ -824,6 +824,7 @@ const renderCoursesByCategory = async (root, coursesData, selectedCategory) => {
                 root.attr('data-category', selectedCategory);
                 container.html(html);
                 container.find('.back-to-categories').on('click', () => {
+                    filtercontainer.find('[data-action="search"][data-region="input"]').val('');
                     renderCategoriesOnly(root, coursesData);
                 });
             }).catch(Notification.exception);
@@ -836,17 +837,6 @@ const renderCoursesByCategory = async (root, coursesData, selectedCategory) => {
             const searchText = (input.value || '').trim();
             renderFilteredCourses(searchText);
         }, 300));
-
-
-        filtercontainer.find('[data-action="search"][data-region="input"]').on('input', debounce(function (e) {
-            const input = e.target;
-            const searchText = (input.value || '').trim();
-            renderFilteredCourses(searchText);
-        }, 300));
-
-
-        // Back button to categories
-
 
     } catch (error) {
         Notification.exception(error);
