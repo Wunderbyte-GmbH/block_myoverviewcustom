@@ -794,6 +794,7 @@ const registerEventListeners = (root) => {
 };
 
 const renderCoursesByCategory = async (root, coursesData, selectedCategory) => {
+    console.log(root);
     const container = root.find('[data-region="courseview"]');
     const template = TEMPLATES.COURSES_CARDS;
     const filtercontainer = root.find('[data-region="filter"]');
