@@ -803,7 +803,8 @@ const renderCoursesByCategory = async (root, coursesData, selectedCategory) => {
         const uncategorizedStr = await Str.get_string('uncategorized', 'block_myoverviewcustom');
 
         const renderFilteredCourses = (searchText) => {
-            const selectedCategoryFinal = selectedCategory;
+            const selectedCategoryFinal = root.attr('data-category');
+
             const filters = getFilterValues(root);
             const query = (searchText || '').toLowerCase();
             let filteredCourses = coursesData.courses
@@ -875,6 +876,7 @@ const renderCategoriesOnly = async (root, coursesData) => {
 
         root.find('.category-link').on('click', function () {
             const selectedCategory = $(this).data('category');
+            root.attr('data-category', selectedCategory);
             renderCoursesByCategory(root, coursesData, selectedCategory);
         });
 
