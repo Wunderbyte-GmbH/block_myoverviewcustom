@@ -802,13 +802,13 @@ const renderCoursesByCategory = async (root, coursesData, selectedCategory) => {
         const uncategorizedStr = await Str.get_string('uncategorized', 'block_myoverviewcustom');
 
         const renderFilteredCourses = (searchText) => {
+            selectedCategory = root.attr('data-category');
             const filters = getFilterValues(root);
             const query = (searchText || '').toLowerCase();
             let filteredCourses = coursesData.courses
                 .filter(course => {
                     const courseCategory = course.customfieldvalue || uncategorizedStr;
                     const matchesCategory = courseCategory === selectedCategory;
-                    console.log(courseCategory, selectedCategory);
                     const name = (course.fullname || '').toString();
                     const matchesSearch = name.toLowerCase().includes(query);
                     return matchesCategory && matchesSearch;
