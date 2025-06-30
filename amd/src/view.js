@@ -808,6 +808,7 @@ const renderCoursesByCategory = async (root, coursesData, selectedCategory) => {
                 .filter(course => {
                     const courseCategory = course.customfieldvalue || uncategorizedStr;
                     const matchesCategory = courseCategory === selectedCategory;
+                    console.log(courseCategory, selectedCategory);
                     const name = (course.fullname || '').toString();
                     const matchesSearch = name.toLowerCase().includes(query);
                     return matchesCategory && matchesSearch;
