@@ -794,6 +794,8 @@ const registerEventListeners = (root) => {
 };
 
 const renderCoursesByCategory = async (root, coursesData, selectedCategory) => {
+    root.attr('data-category', selectedCategory);
+
     const container = root.find('[data-region="courseview"]');
     const template = TEMPLATES.COURSES_CARDS;
     const filtercontainer = root.find('[data-region="filter"]');
@@ -816,13 +818,13 @@ const renderCoursesByCategory = async (root, coursesData, selectedCategory) => {
                     course.showcoursecategory = filters.displaycategories === 'on';
                     return course;
                 });
-
+            
+            console.log(`Rendering ${filteredCourses.length} courses in category "${selectedCategoryFinal}" with search "${searchText}"`);
             Templates.render(template, {
                 groupedCourses: [{ category: selectedCategoryFinal, courses: filteredCourses }],
                 allcategories: [selectedCategoryFinal],
                 backToCategories: true
             }).then(html => {
-                root.attr('data-category', selectedCategoryFinal);
                 container.html(html);
                 container.find('.back-to-categories').on('click', () => {
                     filtercontainer.find('[data-action="search"][data-region="input"]').val('');
