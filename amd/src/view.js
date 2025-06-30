@@ -794,7 +794,6 @@ const registerEventListeners = (root) => {
 };
 
 const renderCoursesByCategory = async (root, coursesData, selectedCategory) => {
-    console.log(root);
     const container = root.find('[data-region="courseview"]');
     const template = TEMPLATES.COURSES_CARDS;
     const filtercontainer = root.find('[data-region="filter"]');
@@ -802,13 +801,13 @@ const renderCoursesByCategory = async (root, coursesData, selectedCategory) => {
         const uncategorizedStr = await Str.get_string('uncategorized', 'block_myoverviewcustom');
 
         const renderFilteredCourses = (searchText) => {
-            selectedCategory = root.attr('data-category');
+            const selectedCategoryFinal = selectedCategory;
             const filters = getFilterValues(root);
             const query = (searchText || '').toLowerCase();
             let filteredCourses = coursesData.courses
                 .filter(course => {
                     const courseCategory = course.customfieldvalue || uncategorizedStr;
-                    const matchesCategory = courseCategory === selectedCategory;
+                    const matchesCategory = courseCategory === selectedCategoryFinal;
                     const name = (course.fullname || '').toString();
                     const matchesSearch = name.toLowerCase().includes(query);
                     return matchesCategory && matchesSearch;
@@ -819,11 +818,11 @@ const renderCoursesByCategory = async (root, coursesData, selectedCategory) => {
                 });
 
             Templates.render(template, {
-                groupedCourses: [{ category: selectedCategory, courses: filteredCourses }],
-                allcategories: [selectedCategory],
+                groupedCourses: [{ category: selectedCategoryFinal, courses: filteredCourses }],
+                allcategories: [selectedCategoryFinal],
                 backToCategories: true
             }).then(html => {
-                root.attr('data-category', selectedCategory);
+                root.attr('data-category', selectedCategoryFinal);
                 container.html(html);
                 container.find('.back-to-categories').on('click', () => {
                     filtercontainer.find('[data-action="search"][data-region="input"]').val('');
